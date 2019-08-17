@@ -3,7 +3,7 @@ package com.github.daggerok.usermanagement.domain.user;
 import com.github.daggerok.usermanagement.domain.DomainEvent;
 import com.github.daggerok.usermanagement.domain.user.events.UserCreatedEvent;
 import com.github.daggerok.usermanagement.domain.user.events.UserReactivatedEvent;
-import com.github.daggerok.usermanagement.domain.user.events.UserSuspendEvent;
+import com.github.daggerok.usermanagement.domain.user.events.UserSuspendedEvent;
 import io.vavr.API;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -45,7 +45,7 @@ public class User implements Function<DomainEvent, User> {
     public void suspend(UUID id, String reason) {
         Objects.requireNonNull(id, "id may not be null");
         if (status == UserStatus.SUSPENDED) throw new IllegalStateException("user already suspended");
-        handle(UserSuspendEvent.of(id, reason));
+        handle(UserSuspendedEvent.of(id, reason));
     }
 
     public void reactivate(UUID id, String reason) {
@@ -65,7 +65,7 @@ public class User implements Function<DomainEvent, User> {
     public User apply(DomainEvent domainEvent) {
         return API.Match(domainEvent).of(
                 Case($(instanceOf(UserCreatedEvent.class)), this::handle),
-                Case($(instanceOf(UserSuspendEvent.class)), this::handle),
+                Case($(instanceOf(UserSuspendedEvent.class)), this::handle),
                 Case($(instanceOf(UserReactivatedEvent.class)), this::handle),
                 Case($(), this::handle)
         );
@@ -81,7 +81,7 @@ public class User implements Function<DomainEvent, User> {
         return this;
     }
 
-    private User handle(UserSuspendEvent event) {
+    private User handle(UserSuspendedEvent event) {
         events.add(event);
         this.status = UserStatus.SUSPENDED;
         notes.add(String.format("%s: %s", event.getAt(), event.getReason()));
