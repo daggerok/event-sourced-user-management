@@ -15,7 +15,7 @@
         <logger name="com.github.daggerok" level="ALL" additivity="false">
             <appender-ref ref="ConsoleAppender"/>
         </logger>
-        <Root level="ALL" includeLocation="true">
+        <Root level="ALL">
             <AppenderRef ref="ConsoleAppender"/>
         </Root>
     </Loggers>

@@ -33,17 +33,6 @@ before_install:
   - pip install --user $(whoami) --upgrade httpie
   - http --version --debug
   - docker-compose version
-  #
-  - source <(curl -s https://raw.githubusercontent.com/daggerok/bash-functions/master/main.bash)
-  - stop_any 9092 2181 80 8001 8002 8080 5432
-#before_script:
-##  - git clone --depth=1 https://github.com/confluentinc/cp-docker-images.git $HOME/.k || echo 'oops...'
-#  - (test -d "$HOME/.k") || (git clone --depth=1 https://github.com/confluentinc/cp-docker-images.git $HOME/.k || echo 'oops...')
-#  - docker-compose -f $HOME/.k/examples/kafka-single-node/docker-compose.yml up -d
-#after_script:
-#  - stop_any 80 8080
-#  - docker-compose -f $HOME/.k/examples/kafka-single-node/docker-compose.yml down -v --rmi local
-#  - ./gradlew --stop || echo 'oops...'
 jobs:
   include:
     - stage: test
@@ -57,14 +46,6 @@ jobs:
         - cd $TRAVIS_BUILD_DIR
         - ./gradlew clean test
         - ./gradlew dependencyUpdates -Drevision=release
-#        - ./gradlew
-#        - java -jar $TRAVIS_BUILD_DIR/build/libs/*-SNAPSHOT.jar &
-#        - wait_for 8080
-#        - http get  :8080
-#        - http post :8080/api/v1/messages message=ololo
-#        - http post :8080/api/v1/messages message=ololo
-#        - http post :8080/api/v1/messages message=ololo not=found
-#        - http get :8080/api/v1/messages
 cache:
   directories:
     - ~/.embedmongo
@@ -74,4 +55,3 @@ cache:
     - ~/.k
   packages: true
   pip: true
-
