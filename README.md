@@ -5,6 +5,16 @@ CQRS and event sourcing using plain embedded into jdk `com.sun.net.httpserver` w
 this is an example of event sourced system I'm going to use for teaching... So please, don't even try 
 use it in production
 
+Status: in progress...
+
+RoadMap:
+- ~~Setup Gradle / Groovy repository with Spring IoC dependency injection and Spock test framework~~
+- ~~Implement REST API with plain java embedded http server~~
+- ~~Implement and cover with tests User aggregate ~~
+- ~~Implement and cover with tests User repository~~
+- Implement and cover with tests Message aggregate 
+- Implement and cover with tests Message repository
+
 <!--
 
 _run kafka_
