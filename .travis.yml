@@ -36,14 +36,14 @@ before_install:
   #
   - source <(curl -s https://raw.githubusercontent.com/daggerok/bash-functions/master/main.bash)
   - stop_any 9092 2181 80 8001 8002 8080 5432
-before_script:
-#  - git clone --depth=1 https://github.com/confluentinc/cp-docker-images.git $HOME/.k || echo 'oops...'
-  - (test -d "$HOME/.k") || (git clone --depth=1 https://github.com/confluentinc/cp-docker-images.git $HOME/.k || echo 'oops...')
-  - docker-compose -f $HOME/.k/examples/kafka-single-node/docker-compose.yml up -d
-after_script:
-  - stop_any 80 8080
-  - docker-compose -f $HOME/.k/examples/kafka-single-node/docker-compose.yml down -v --rmi local
-  - ./gradlew --stop || echo 'oops...'
+#before_script:
+##  - git clone --depth=1 https://github.com/confluentinc/cp-docker-images.git $HOME/.k || echo 'oops...'
+#  - (test -d "$HOME/.k") || (git clone --depth=1 https://github.com/confluentinc/cp-docker-images.git $HOME/.k || echo 'oops...')
+#  - docker-compose -f $HOME/.k/examples/kafka-single-node/docker-compose.yml up -d
+#after_script:
+#  - stop_any 80 8080
+#  - docker-compose -f $HOME/.k/examples/kafka-single-node/docker-compose.yml down -v --rmi local
+#  - ./gradlew --stop || echo 'oops...'
 jobs:
   include:
     - stage: test
