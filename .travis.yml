@@ -39,19 +39,12 @@ jobs:
       jdk: openjdk8
       name: tests
       script: cd $TRAVIS_BUILD_DIR && ./gradlew clean test dependencyUpdates -Drevision=release
-    - stage: test
-      jdk: openjdk11
-      name: tests (openjdk11)
-      script:
-        - cd $TRAVIS_BUILD_DIR
-        - ./gradlew clean test
-        - ./gradlew dependencyUpdates -Drevision=release
+#      script:
+#        - cd $TRAVIS_BUILD_DIR
+#        - ./gradlew clean test
+#        - ./gradlew dependencyUpdates -Drevision=release
 cache:
   directories:
-    - ~/.embedmongo
     - ~/.gradle
-    - ~/.docker
-    - ~/.m2
-    - ~/.k
   packages: true
   pip: true
