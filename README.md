@@ -1,4 +1,4 @@
-# CQRS and event sourcing app [![Build Status](https://travis-ci.org/daggerok/cqrs-eventsourcing-user-management-example.svg?branch=master)](https://travis-ci.org/daggerok/cqrs-eventsourcing-user-management-example)
+# CQRS and event sourcing app [![Build Status](https://travis-ci.org/daggerok/event-sourced-user-management.svg?branch=master)](https://travis-ci.org/daggerok/event-sourced-user-management)
 CQRS and event sourcing using plain embedded into jdk `com.sun.net.httpserver` with dynamic groovy spock tests
 
 ## TL;DR
