@@ -56,10 +56,10 @@ public class User implements Function<DomainEvent, User> {
 
     /* Event sourcing */
 
-    public static User restore(User snapshot, Collection<DomainEvent> domainEvents) {
-        return io.vavr.collection.List.ofAll(domainEvents)
-                                      .foldLeft(snapshot, User::apply);
-    }
+    // public static User reApply(User snapshot, Collection<DomainEvent> domainEvents) {
+    //     return io.vavr.collection.List.ofAll(domainEvents)
+    //                                   .foldLeft(snapshot, User::apply);
+    // }
 
     @Override
     public User apply(DomainEvent domainEvent) {
