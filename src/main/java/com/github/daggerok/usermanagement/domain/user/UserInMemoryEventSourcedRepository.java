@@ -3,6 +3,7 @@ package com.github.daggerok.usermanagement.domain.user;
 import com.github.daggerok.usermanagement.domain.DomainEvent;
 import com.github.daggerok.usermanagement.domain.EventSourcedRepository;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -15,6 +16,7 @@ import static io.vavr.Predicates.not;
 import static java.util.Collections.emptyList;
 
 @Log4j2
+@Service
 public class UserInMemoryEventSourcedRepository implements EventSourcedRepository<User, UUID> {
 
     private final Map<UUID, Collection<DomainEvent>> eventStore = new ConcurrentHashMap<>();
@@ -38,29 +40,47 @@ public class UserInMemoryEventSourcedRepository implements EventSourcedRepositor
     }
 
     @Override
-    public User find(UUID aggregateId) {
-        return findPast(aggregateId, LocalDateTime.now());
+    public User recreate(UUID aggregateId) {
+        log.debug("re-create latest User({}) state from beginning of the history...", aggregateId);
+
+        User snapshot = new User();
+        if (Objects.isNull(aggregateId)) return snapshot;
+
+        return eventStore.containsKey(aggregateId)
+                ? replay(snapshot, eventStore.get(aggregateId))
+                : snapshot;
     }
 
     @Override
-    public User findPast(UUID aggregateId, LocalDateTime atTime) {
-        UUID id = Objects.requireNonNull(aggregateId, "aggregate ID may not be null.");
+    public User recreatePast(UUID aggregateId, LocalDateTime atTime) {
+        log.debug("re-create past User({}) state at {}...", aggregateId, atTime);
+
+        User snapshot = new User();
+        if (Objects.isNull(aggregateId)) return snapshot;
+        if (eventStore.containsKey(aggregateId)) return snapshot;
+
         LocalDateTime pastTime = Optional.ofNullable(atTime).orElse(LocalDateTime.now()); // fallback to now
-        return recreate(new User(),
-                        eventStore.getOrDefault(id, emptyList())
-                                  .stream()
-                                  .filter(not(event -> pastTime.isBefore(event.getAt()))) // all past events
-                                  .collect(Collectors.toList()));
+
+        return replay(snapshot,
+                      eventStore.getOrDefault(aggregateId, emptyList()).stream() // stream all events from beginning
+                                .filter(not(event -> pastTime.isBefore(event.getAt()))) // filter all past events
+                                .collect(Collectors.toList()));
     }
 
     @Override
-    public User recreate(User snapshot, Collection<DomainEvent> domainEvents) {
+    public User replay(User snapshot, Collection<DomainEvent> domainEvents) {
         User user = Optional.ofNullable(snapshot).orElse(new User());
         Collection<DomainEvent> events = Optional.ofNullable(domainEvents).orElse(emptyList());
 
-        log.debug("re-creation {} state by applying {} events.",
-                  user.getClass().getSimpleName(), events.size());
+        log.debug("replay User state from snapshot by applying {} events.", events.size());
         return io.vavr.collection.List.ofAll(events)
-                                      .foldLeft(user, User::apply);
+                                      .foldLeft(user, User::apply); // Aggregate must have (apply impl) specific API!
+    }
+
+    @Override
+    public Collection<UUID> aggregates() {
+        Set<UUID> identifiers = eventStore.keySet();
+        log.debug("aggregate identifiers: {}", identifiers.size());
+        return identifiers;
     }
 }

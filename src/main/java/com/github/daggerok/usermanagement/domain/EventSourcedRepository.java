@@ -5,7 +5,8 @@ import java.util.Collection;
 
 public interface EventSourcedRepository<T, ID> {
     void save(T aggregate);
-    T find(ID aggregateId);
-    T findPast(ID aggregateId, LocalDateTime atTime);
-    T recreate(T snapshot, Collection<DomainEvent> domainEvents);
+    T recreate(ID aggregateId);
+    T recreatePast(ID aggregateId, LocalDateTime atTime);
+    T replay(T snapshot, Collection<DomainEvent> domainEvents);
+    Collection<ID> aggregates();
 }

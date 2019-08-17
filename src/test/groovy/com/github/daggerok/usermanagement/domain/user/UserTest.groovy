@@ -2,11 +2,9 @@ package com.github.daggerok.usermanagement.domain.user
 
 import spock.lang.Specification
 
-import java.util.stream.Stream
-
 class UserTest extends Specification {
 
-    def 'should create user'() {
+    def 'should create user and verify its pending status'() {
         given:
             def user = new User()
         expect:
@@ -25,7 +23,7 @@ class UserTest extends Specification {
             user.id as String == '00000000-0000-0000-0000-000000000000'
     }
 
-    def 'should suspend user'() {
+    def 'should create, suspend user and verify its proper status with a reason'() {
         given:
             def user = new User()
         and:
@@ -40,7 +38,7 @@ class UserTest extends Specification {
             user.notes.size() == 1
     }
 
-    def 'should re-activate user'() {
+    def 'should be able to reactivate user with according notes'() {
         given:
             def user = new User()
         and:
