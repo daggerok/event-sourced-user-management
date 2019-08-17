@@ -10,7 +10,7 @@ Status: in progress...
 RoadMap:
 - ~~Setup Gradle / Groovy repository with Spring IoC dependency injection and Spock test framework~~
 - ~~Implement REST API with plain java embedded http server~~
-- ~~Implement and cover with tests User aggregate ~~
+- ~~Implement and cover with tests User aggregate~~
 - ~~Implement and cover with tests User repository~~
 - Implement and cover with tests Message aggregate 
 - Implement and cover with tests Message repository
