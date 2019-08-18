@@ -2,10 +2,8 @@
 CQRS and event sourcing using plain embedded into jdk `com.sun.net.httpserver` with dynamic groovy spock tests
 
 ## TL;DR
-this is an example of event sourced system I'm going to use for teaching... So please, don't even try 
-use it in production
-
-[Read: Why Developers Should Not Write Programs That Call 'sun' Packages](https://www.oracle.com/technetwork/java/faq-sun-packages-142232.html)
+this is an example of event sourced system I'm using for teaching my students, so please, don't even try 
+use it in production: Also read: [Why Developers Should Not Write Programs That Call 'sun' Packages](https://www.oracle.com/technetwork/java/faq-sun-packages-142232.html)
 
 Status: in progress...
 
