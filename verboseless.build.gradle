@@ -39,8 +39,8 @@ dependencies {
     // testRuntime 'org.codehaus.groovy:groovy'
 }
 
-jar {
-    // archiveClassifier.set('all')
+task fatJar(type: Jar) {
+    archiveClassifier.set('all')
     duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
     manifest {
         attributes('Main-Class': 'com.github.daggerok.usermanagement.UserManagementApplication')
@@ -51,9 +51,7 @@ jar {
                 println("lib: $it.absolutePath")
                 it.isDirectory() ? it : zipTree(it)
             })
-    sourceSets.main.allSource.each {
-        println("app: $it.absolutePath")
-    }
+    sourceSets.main.allSource.each { println("app: $it.absolutePath") }
     from(sourceSets.main.output)
 }
 
@@ -66,3 +64,4 @@ test {
 }
 
 defaultTasks 'clean', 'build'
+build.dependsOn 'fatJar'

@@ -13,19 +13,19 @@ RoadMap:
 - ~~Implement basic REST API info and shutdown endpoints~~
 - ~~Implement and cover with tests User aggregate~~
 - ~~Implement and cover with tests User repository~~
-- Implement user REST API endpoints
+- ~~Implement user REST API endpoints~~
 - Implement and cover with tests Message aggregate 
 - Implement and cover with tests Message repository
 - Implement user Messages endpoints
-- Implement CLI interface which is goimng to be interact with REST API
-- Prepare future roadmap for EventStore persistence introduction:
+- Implement CLI interface which is going to be interact with REST API
+- Prepare future RoadMap for EventStore persistence introduction:
   - MapDB
   - JDBC
   - JPA
   - Spring Data
   - NoSQL
   - etc...
-- Prepare future roadmap for PubSub introduction:
+- Prepare future RoadMap for PubSub introduction:
   - plain pub-sub patter implementation
   - simple im-memory pub-sub solution from Google or Android library
   - Using spring application events

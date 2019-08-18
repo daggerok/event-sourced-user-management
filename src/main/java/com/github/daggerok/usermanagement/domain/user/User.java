@@ -1,5 +1,6 @@
 package com.github.daggerok.usermanagement.domain.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.daggerok.usermanagement.domain.DomainEvent;
 import com.github.daggerok.usermanagement.domain.user.events.UserCreatedEvent;
 import com.github.daggerok.usermanagement.domain.user.events.UserReactivatedEvent;
@@ -8,6 +9,7 @@ import io.vavr.API;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.Collection;
@@ -23,9 +25,11 @@ import static io.vavr.Predicates.instanceOf;
 @Getter
 @Log4j2
 @NoArgsConstructor
+@ToString(exclude = "events")
 @EqualsAndHashCode(exclude = "events")
 public class User implements Function<DomainEvent, User> {
 
+    @JsonIgnore
     private final Collection<DomainEvent> events = new CopyOnWriteArrayList<>();
 
     private UUID id;

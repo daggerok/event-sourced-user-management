@@ -39,11 +39,21 @@ dependencies {
     // testRuntime 'org.codehaus.groovy:groovy'
 }
 
+ext {
+    mainClassName = 'com.github.daggerok.usermanagement.UserManagementApplication'
+}
+
 jar {
-    // archiveClassifier.set('all')
+    manifest {
+        attributes('Main-Class': mainClassName)
+    }
+}
+
+task fatJar(type: Jar) {
+    archiveClassifier.set('all')
     duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
     manifest {
-        attributes('Main-Class': 'com.github.daggerok.usermanagement.UserManagementApplication')
+        attributes('Main-Class': mainClassName)
     }
     from(configurations
             .runtimeClasspath
@@ -51,10 +61,9 @@ jar {
                 println("lib: $it.absolutePath")
                 it.isDirectory() ? it : zipTree(it)
             })
-    sourceSets.main.allSource.each {
-        println("app: $it.absolutePath")
-    }
+    sourceSets.main.allSource.each { println("app: $it.absolutePath") }
     from(sourceSets.main.output)
+    with jar
 }
 
 test {

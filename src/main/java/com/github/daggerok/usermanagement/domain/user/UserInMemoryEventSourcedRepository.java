@@ -46,9 +46,11 @@ public class UserInMemoryEventSourcedRepository implements EventSourcedRepositor
         User snapshot = new User();
         if (Objects.isNull(aggregateId)) return snapshot;
 
-        return eventStore.containsKey(aggregateId)
+        User recreated = eventStore.containsKey(aggregateId)
                 ? replay(snapshot, eventStore.get(aggregateId))
                 : snapshot;
+
+        return clearEventsAndGet(recreated);
     }
 
     @Override
@@ -73,8 +75,9 @@ public class UserInMemoryEventSourcedRepository implements EventSourcedRepositor
         Collection<DomainEvent> events = Optional.ofNullable(domainEvents).orElse(emptyList());
 
         log.debug("replay User state from snapshot by applying {} events.", events.size());
-        return io.vavr.collection.List.ofAll(events)
-                                      .foldLeft(user, User::apply); // Aggregate must have (apply impl) specific API!
+        // Aggregate must have (apply impl) specific API!
+        return clearEventsAndGet(io.vavr.collection.List.ofAll(events)
+                                                        .foldLeft(user, User::apply));
     }
 
     @Override
@@ -82,5 +85,10 @@ public class UserInMemoryEventSourcedRepository implements EventSourcedRepositor
         Set<UUID> identifiers = eventStore.keySet();
         log.debug("aggregate identifiers: {}", identifiers.size());
         return identifiers;
+    }
+
+    private User clearEventsAndGet(User replayed) { // avoid state inconsistency between new and recreated aggregates
+        replayed.getEvents().clear();
+        return replayed;
     }
 }

@@ -33,16 +33,28 @@ before_install:
   - pip install --user $(whoami) --upgrade httpie
   - http --version --debug
   - docker-compose version
+  #
+  - source <(curl -s https://raw.githubusercontent.com/daggerok/bash-functions/master/main.bash)
+  - stop_any 9092 2181 80 8001 8002 8080 5432
 jobs:
   include:
     - stage: test
       jdk: openjdk8
       name: tests
       script: cd $TRAVIS_BUILD_DIR && ./gradlew clean test dependencyUpdates -Drevision=release
-#      script:
-#        - cd $TRAVIS_BUILD_DIR
-#        - ./gradlew clean test
-#        - ./gradlew dependencyUpdates -Drevision=release
+    - stage: test
+      jdk: openjdk8
+      name: integration tests
+      script:
+        - cd $TRAVIS_BUILD_DIR && ./gradlew
+        - java -jar $TRAVIS_BUILD_DIR/build/libs/*-SNAPSHOT.jar &
+        - wait_for 8080
+        - http :8080/user/create id=00000000-0000-0000-0000-000000000000 username=bob
+        - http :8080/user/suspend id=00000000-0000-0000-0000-000000000000 reason=hz
+        - http :8080/user/recreate id=00000000-0000-0000-0000-000000000000
+        - http :8080/user/reactivate id=00000000-0000-0000-0000-000000000000
+        - http post :8080/server/shutdown
+        - stop_any 80 8080
 cache:
   directories:
     - ~/.gradle

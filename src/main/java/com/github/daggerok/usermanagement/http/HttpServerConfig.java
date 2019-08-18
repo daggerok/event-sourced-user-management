@@ -1,5 +1,7 @@
 package com.github.daggerok.usermanagement.http;
 
+import com.github.daggerok.usermanagement.http.action.ServerActions;
+import com.github.daggerok.usermanagement.http.action.UserActions;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import io.vavr.control.Try;
@@ -48,10 +50,14 @@ public class HttpServerConfig {
     }
 
     @Bean
-    public HttpHandler httpHandler(HttpActions httpActions) {
+    public HttpHandler httpHandler(ServerActions serverActions, UserActions userActions) {
         return exchange -> Match(exchange.getRequestURI().getPath()).of(
-                Case($(isEqual("/shutdown")), p -> httpActions.shutdown(exchange)),
-                Case($(), p -> httpActions.fallback(exchange))
+                Case($(isEqual("/user/create")), p -> userActions.createUser(exchange)),
+                Case($(isEqual("/user/suspend")), p -> userActions.suspendUser(exchange)),
+                Case($(isEqual("/user/recreate")), p -> userActions.recreateUser(exchange)),
+                Case($(isEqual("/user/reactivate")), p -> userActions.reactivateUser(exchange)),
+                Case($(isEqual("/server/shutdown")), p -> serverActions.shutdownServer(exchange)),
+                Case($(), p -> serverActions.fallbackRestApiInfo(exchange))
         );
     }
 }

@@ -1,6 +1,7 @@
 package com.github.daggerok.usermanagement.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import io.vavr.control.Try;
 import lombok.*;
@@ -36,9 +37,15 @@ public class Response<T> {
         log.info("message: {}", body);
         @Cleanup val exchange = httpExchange;
         setJsonContent(exchange);
+        setCors(exchange);
         sendResponse(exchange);
         setupPostProcessor();
         return this;
+    }
+
+    private void setupPostProcessor() {
+        Optional.ofNullable(postProcessor)
+                .ifPresent(Supplier::get);
     }
 
     private void sendResponse(HttpExchange exchange) throws IOException {
@@ -49,9 +56,20 @@ public class Response<T> {
         out.write(jsonResponse.getBytes(UTF_8));
     }
 
-    private void setupPostProcessor() {
-        Optional.ofNullable(postProcessor)
-                .ifPresent(Supplier::get);
+    private void setCors(HttpExchange exchange) {
+        String allowHeaders = "Content-Type";
+        String allowMethods = "GET, PUT, POST, DELETE, OPTIONS";
+        String allowOrigin = Optional.ofNullable(exchange.getRequestHeaders()
+                                                         .getFirst("Origin"))
+                                     .orElse("null");
+        Headers responseHeaders = exchange.getResponseHeaders();
+        responseHeaders.set("Allow", allowMethods);
+        responseHeaders.set("Access-Control-Allow-Origin", allowOrigin);
+        responseHeaders.set("Access-Control-Allow-Methods", allowMethods);
+        responseHeaders.set("Access-Control-Allow-Headers", allowHeaders);
+        responseHeaders.set("Access-Control-Request-Methods", allowMethods);
+        responseHeaders.set("Access-Control-Request-Headers", allowHeaders);
+        responseHeaders.set("Access-Control-Max-Age", "3600");
     }
 
     private void setJsonContent(HttpExchange exchange) {
@@ -61,12 +79,10 @@ public class Response<T> {
 
     @RequiredArgsConstructor
     public enum Status {
-
         OK(200),
         CREATED(201),
         ACCEPTED(202),
         BAD_REQUEST(400);
-
         public final int code;
     }
 }

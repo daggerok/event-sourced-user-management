@@ -1,14 +1,15 @@
 package com.github.daggerok.usermanagement.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-class JsonResponse {
+public class JsonResponse {
 
+    @Getter
     private final ObjectMapper objectMapper;
 
     public Response.ResponseBuilder<Object> builder() {

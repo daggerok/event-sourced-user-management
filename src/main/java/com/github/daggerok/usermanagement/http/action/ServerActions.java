@@ -1,6 +1,9 @@
-package com.github.daggerok.usermanagement.http;
+package com.github.daggerok.usermanagement.http.action;
 
+import com.github.daggerok.usermanagement.http.JsonResponse;
+import com.github.daggerok.usermanagement.http.Response;
 import com.sun.net.httpserver.HttpExchange;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -10,19 +13,16 @@ import java.util.concurrent.CompletableFuture;
 @Log4j2
 @Service
 @RequiredArgsConstructor
-public class HttpActions {
+public class ServerActions extends CommonHttpActions {
 
+    @Getter
     private final JsonResponse jsonResponse;
 
-    public Response fallback(HttpExchange exchange) {
-        return jsonResponse.builder()
-                           .body("Hello!")
-                           .httpExchange(exchange)
-                           .build()
-                           .send();
-    }
+    public Response shutdownServer(HttpExchange exchange) {
+        log.debug("stop server endpoint...");
 
-    public Response shutdown(HttpExchange exchange) {
+        if (isNotPostMethod(exchange)) return methodNotSupported(exchange);
+
         return jsonResponse.builder()
                            .body("Exiting..... Bye!")
                            .status(Response.Status.ACCEPTED)
