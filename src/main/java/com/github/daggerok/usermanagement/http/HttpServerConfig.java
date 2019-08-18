@@ -1,7 +1,8 @@
 package com.github.daggerok.usermanagement.http;
 
-import com.github.daggerok.usermanagement.http.action.ServerActions;
-import com.github.daggerok.usermanagement.http.action.UserActions;
+import com.github.daggerok.usermanagement.http.action.FriendRequestActions;
+import com.github.daggerok.usermanagement.http.action.HttpServerActions;
+import com.github.daggerok.usermanagement.http.action.UserAccountActions;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import io.vavr.control.Try;
@@ -22,7 +23,7 @@ import static java.util.function.Predicate.isEqual;
 
 @Log4j2
 @Configuration
-@RequiredArgsConstructor(onConstructor_ = @Lazy) // <- !!!
+@RequiredArgsConstructor(onConstructor_ = @Lazy) // <- required!
 @ComponentScan(basePackageClasses = HttpServerConfig.class)
 public class HttpServerConfig {
 
@@ -50,14 +51,20 @@ public class HttpServerConfig {
     }
 
     @Bean
-    public HttpHandler httpHandler(ServerActions serverActions, UserActions userActions) {
+    public HttpHandler httpHandler(HttpServerActions httpServerActions,
+                                   UserAccountActions userAccountActions,
+                                   FriendRequestActions friendRequestActions) {
+
         return exchange -> Match(exchange.getRequestURI().getPath()).of(
-                Case($(isEqual("/user/create")), p -> userActions.createUser(exchange)),
-                Case($(isEqual("/user/suspend")), p -> userActions.suspendUser(exchange)),
-                Case($(isEqual("/user/recreate")), p -> userActions.recreateUser(exchange)),
-                Case($(isEqual("/user/reactivate")), p -> userActions.reactivateUser(exchange)),
-                Case($(isEqual("/server/shutdown")), p -> serverActions.shutdownServer(exchange)),
-                Case($(), p -> serverActions.fallbackRestApiInfo(exchange))
+                Case($(isEqual("/user/load")), path -> userAccountActions.load(exchange)),
+                Case($(isEqual("/user-account/create")), path -> userAccountActions.create(exchange)),
+                Case($(isEqual("/user-account/close")), path -> userAccountActions.close(exchange)),
+                Case($(isEqual("/user-account/reactivate")), path -> userAccountActions.reactivate(exchange)),
+                Case($(isEqual("/friend-request/send")), path -> friendRequestActions.send(exchange)),
+                Case($(isEqual("/friend-request/accept")), path -> friendRequestActions.accept(exchange)),
+                Case($(isEqual("/friend-request/decline")), path -> friendRequestActions.decline(exchange)),
+                Case($(isEqual("/http-server/shutdown")), path -> httpServerActions.shutdown(exchange)),
+                Case($(), path -> httpServerActions.fallbackRestApiInfo(exchange))
         );
     }
 }

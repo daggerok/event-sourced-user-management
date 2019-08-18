@@ -7,8 +7,8 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Value(staticConstructor = "of")
-public class UserReactivatedEvent implements DomainEvent {
-    private final UUID id;
-    private final String reason;
+public class FriendRequestAcceptedEvent implements DomainEvent {
+    private final UUID fromUserId;
+    private final UUID toUserId;
     private final LocalDateTime at = LocalDateTime.now();
 }

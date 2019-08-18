@@ -12,7 +12,7 @@ class UserTest extends Specification {
         and:
             user.id == null
         when:
-            user.create(UUID.fromString('00000000-0000-0000-0000-000000000000'), 'bob')
+            user.createAccount(UUID.fromString('00000000-0000-0000-0000-000000000000'), 'bob')
         then:
             user.status == UserStatus.ACTIVE
         expect:
@@ -29,11 +29,11 @@ class UserTest extends Specification {
         and:
             def id = UUID.fromString('00000000-0000-0000-0000-000000000000')
         and:
-            user.create(id, 'bob')
+            user.createAccount(id, 'bob')
         when:
-            user.suspend(id, 'seems like bob was hacked')
+            user.closeAccount(id, 'seems like bob was hacked')
         then:
-            user.status == UserStatus.SUSPENDED
+            user.status == UserStatus.CLOSED
         and:
             user.notes.size() == 1
     }
@@ -44,19 +44,19 @@ class UserTest extends Specification {
         and:
             def id = UUID.fromString('00000000-0000-0000-0000-000000000000')
         and:
-            user.create(id, 'bob')
+            user.createAccount(id, 'bob')
         and:
             user.events.size() == 1
         and:
             user.notes.size() == 1
         and:
-            user.suspend(id, 'freedom speech, motherfuckers!')
+            user.closeAccount(id, 'freedom speech, motherfuckers!')
         and:
             user.events.size() == 2
         and:
             user.notes.size() == 1
         when:
-            user.reactivate(id, 'we are sorry for this misunderstanding...')
+            user.reactivateAccount(id, 'we are sorry for this misunderstanding...')
         and:
             user.events.size() == 3
         and:

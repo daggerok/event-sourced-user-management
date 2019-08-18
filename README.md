@@ -5,19 +5,27 @@ CQRS and event sourcing using plain embedded into jdk `com.sun.net.httpserver` w
 this is an example of event sourced system I'm going to use for teaching... So please, don't even try 
 use it in production
 
+[Read: Why Developers Should Not Write Programs That Call 'sun' Packages](https://www.oracle.com/technetwork/java/faq-sun-packages-142232.html)
+
 Status: in progress...
 
 RoadMap:
 - ~~Setup Gradle / Groovy repository with Spring IoC dependency injection and Spock test framework~~
 - ~~Implement REST API with plain java embedded http server~~
 - ~~Implement basic REST API info and shutdown endpoints~~
-- ~~Implement and cover with tests User aggregate~~
-- ~~Implement and cover with tests User repository~~
-- ~~Implement user REST API endpoints~~
-- Implement and cover with tests Message aggregate 
-- Implement and cover with tests Message repository
-- Implement user Messages endpoints
-- Implement CLI interface which is going to be interact with REST API
+- ~~Implement and cover with tests User Account aggregate functionality~~
+- ~~Implement and cover with tests User Account aggregate repository functionality~~
+- ~~Implement user-account REST API endpoints~~
+- ~~Implement Friend Request aggregate functionality~~
+- ~~Implement Friend Request aggregate repository functionality~~
+- Implement friend-request REST API endpoints
+- Implement messenger aggregate functionality
+- Implement messenger aggregate repository functionality
+- Implement messenger REST API endpoints
+- Implement async PubSub / Queue functionality to decouple direct REST API calls from aggregate repository
+- Introduce read (query) side to avoid non efficient event sourcing repository querying
+- Split current REST API into CQRS for eventual consistency and projections efficiency
+- Implement CLI interface which is going to be interact with REST API by using CQRS
 - Prepare future RoadMap for EventStore persistence introduction:
   - MapDB
   - JDBC

@@ -7,8 +7,8 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Value(staticConstructor = "of")
-public class UserCreatedEvent implements DomainEvent {
+public class UserAccountReactivatedEvent implements DomainEvent {
     private final UUID id;
-    private final String username;
+    private final String reason;
     private final LocalDateTime at = LocalDateTime.now();
 }

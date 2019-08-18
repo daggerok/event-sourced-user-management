@@ -4,6 +4,7 @@ import com.github.daggerok.usermanagement.http.JsonResponse;
 import com.github.daggerok.usermanagement.http.Response;
 import com.sun.net.httpserver.HttpExchange;
 import io.vavr.collection.LinkedHashMap;
+import io.vavr.control.Try;
 import lombok.Cleanup;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -16,6 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Log4j2
@@ -24,26 +26,33 @@ public abstract class CommonHttpActions {
 
     abstract JsonResponse getJsonResponse();
 
-    protected static final Function<HttpExchange, BiFunction<String, String, String>> baseUrl = exchange -> {
-        String authority = exchange.getRequestHeaders().getFirst("host");
-        return (method, path) ->
-                String.format("%s http://%s/%s", Optional.ofNullable(method).orElse(""), authority, path);
-    };
+    protected static final Function<HttpExchange, BiFunction<String, String, String>> baseUrl = exchange ->
+            (method, path) -> String.format("%s http://%s/%s",
+                                            Optional.ofNullable(method).orElse(""),
+                                            exchange.getRequestHeaders().getFirst("host"), path);
+
+    private static final Function<BiFunction<String, String, String>, Map<String, String>> restApi = url ->
+            LinkedHashMap.of("shutdown server", url.apply("POST", "http-server/shutdown"),
+                             "create user account", url.apply("POST", "user-account/create"),
+                             "reactivate user account", url.apply("POST", "user-account/reactivate"),
+                             "close user account", url.apply("POST", "user-account/close"),
+                             "recreate user", url.apply("POST", "user/load"))
+                         .toJavaMap();
 
     public Response fallbackRestApiInfo(HttpExchange exchange) {
         log.debug("fallback for {}", exchange.getRequestURI());
-        BiFunction<String, String, String> url = baseUrl.apply(exchange);
-        return getJsonResponse().builder()
-                                .body(LinkedHashMap.of("shutdown", url.apply("POST", "server/shutdown"),
-                                                       "create user", url.apply("POST", "user/create"),
-                                                       "recreate user", url.apply("POST", "user/recreate"))
-                                                   .toJavaMap())
-                                .httpExchange(exchange)
-                                .build()
-                                .send();
+
+        return tryWithFallback(exchange, () -> {
+            BiFunction<String, String, String> url = baseUrl.apply(exchange);
+            return getJsonResponse().builder()
+                                    .body(restApi.apply(url))
+                                    .httpExchange(exchange)
+                                    .build()
+                                    .send();
+        });
     }
 
-    protected Response<Object> methodNotSupported(HttpExchange exchange) {
+    protected Response methodNotSupported(HttpExchange exchange) {
         return getJsonResponse().builder()
                                 .httpExchange(exchange)
                                 .body("only post method is supported")
@@ -66,5 +75,17 @@ public abstract class CommonHttpActions {
                                     .map(String::trim)
                                     .collect(Collectors.joining(""));
         return (Map<String, String>) getJsonResponse().getObjectMapper().readValue(json, Map.class);
+    }
+
+    protected Response tryWithFallback(HttpExchange exchange, Supplier<Response> mayFail) {
+        return Try.of(mayFail::get)
+                  .getOrElseGet(throwable -> getJsonResponse().builder()
+                                                              .body(String.format("%s: %s",
+                                                                                  throwable.getClass().getSimpleName(),
+                                                                                  throwable.getLocalizedMessage()))
+                                                              .httpExchange(exchange)
+                                                              .status(Response.Status.BAD_REQUEST)
+                                                              .build()
+                                                              .send());
     }
 }

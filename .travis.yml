@@ -49,11 +49,21 @@ jobs:
         - cd $TRAVIS_BUILD_DIR && ./gradlew
         - java -jar $TRAVIS_BUILD_DIR/build/libs/*-SNAPSHOT.jar &
         - wait_for 8080
-        - http :8080/user/create id=00000000-0000-0000-0000-000000000000 username=bob
-        - http :8080/user/suspend id=00000000-0000-0000-0000-000000000000 reason=hz
-        - http :8080/user/recreate id=00000000-0000-0000-0000-000000000000
-        - http :8080/user/reactivate id=00000000-0000-0000-0000-000000000000
-        - http post :8080/server/shutdown
+        #
+        - http :8080/user/load id=00000000-0000-0000-0000-000000000000
+        #
+        - http :8080/user-account/create id=00000000-0000-0000-0000-000000000000 username=bob
+        - http :8080/user-account/close id=00000000-0000-0000-0000-000000000000 reason=hz
+        - http :8080/user-account/reactivate id=00000000-0000-0000-0000-000000000000
+        #
+        - http :8080/user-account/create id=11111111-1111-1111-1111-111111111111 username=max
+        - http :8080/friend-request/send
+            fromUserId=00000000-0000-0000-0000-000000000000
+            toUserId=11111111-1111-1111-1111-111111111111
+            greeting='Hey!' || echo 'oops... implement me please!'
+        #
+        - http post :8080/http-server/shutdown
+        #
         - stop_any 80 8080
 cache:
   directories:

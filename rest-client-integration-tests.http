@@ -1,13 +1,24 @@
 # Read more: https://www.jetbrains.com/help/idea/http-client-in-product-code-editor.html
 
-# curl localhost:8080/user/create -H"content-type: application/json"
+### 1:
+# curl localhost:8080/user-account/create -H"content-type: application/json"
 GET localhost:8080/
 Content-Type: application/json
 Accept: application/json
 
-###
-# curl localhost:8080/user/recreate -d'{"username": "bob", "id": "00000000-0000-0000-0000-000000000000"}' -H"content-type: application/json"
-POST localhost:8080/user/create
+### 2:
+# curl localhost:8080/user/load -d'{"id": "00000000-0000-0000-0000-000000000000"}' -H"content-type: application/json"
+POST localhost:8080/user/load
+Content-Type: application/json
+Accept: application/json
+
+{
+  "id": "00000000-0000-0000-0000-000000000000"
+}
+
+### 3:
+# curl localhost:8080/user-account/create -d'{"username": "bob", "id": "00000000-0000-0000-0000-000000000000"}' -H"content-type: application/json"
+POST localhost:8080/user-account/create
 Content-Type: application/json
 Accept: application/json
 
@@ -16,9 +27,9 @@ Accept: application/json
   "username": "bob"
 }
 
-###
-# curl localhost:8080/user/suspend -d'{"id": "00000000-0000-0000-0000-000000000000"}' -H"content-type: application/json"
-POST localhost:8080/user/suspend
+### 4:
+# curl localhost:8080/user-account/close -d'{"id": "00000000-0000-0000-0000-000000000000"}' -H"content-type: application/json"
+POST localhost:8080/user-account/close
 Content-Type: application/json
 Accept: application/json
 
@@ -26,9 +37,9 @@ Accept: application/json
   "id": "00000000-0000-0000-0000-000000000000"
 }
 
-###
-# curl localhost:8080/user/recreate -d'{"id": "00000000-0000-0000-0000-000000000000"}' -H"content-type: application/json"
-POST localhost:8080/user/recreate
+### 5:
+# curl localhost:8080/user-account/reactivate -d'{"id": "00000000-0000-0000-0000-000000000000"}' -H"content-type: application/json"
+POST localhost:8080/user-account/reactivate
 Content-Type: application/json
 Accept: application/json
 
@@ -36,18 +47,66 @@ Accept: application/json
   "id": "00000000-0000-0000-0000-000000000000"
 }
 
-###
-# curl localhost:8080/user/reactivate -d'{"id": "00000000-0000-0000-0000-000000000000"}' -H"content-type: application/json"
-POST localhost:8080/user/reactivate
+### 6:
+# curl localhost:8080/user-account/create -d'{"username": "bob", "id": "00000000-0000-0000-0000-000000000000"}' -H"content-type: application/json"
+POST localhost:8080/user-account/create
 Content-Type: application/json
 Accept: application/json
 
 {
-  "id": "00000000-0000-0000-0000-000000000000"
+  "id": "11111111-1111-1111-1111-111111111111",
+  "username": "max"
 }
 
-###
-POST localhost:8080/server/shutdown
+### 7:
+# curl localhost:8080/friend-request/send -d'{"fromUserId": "00000000-0000-0000-0000-000000000000", "toUserId": "11111111-1111-1111-1111-111111111111", "greeting": "Hey!"}' -H"content-type: application/json"
+POST localhost:8080/friend-request/send
+Content-Type: application/json
+Accept: application/json
+
+{
+  "fromUserId": "00000000-0000-0000-0000-000000000000",
+  "toUserId": "11111111-1111-1111-1111-111111111111",
+  "greeting": "Hey!"
+}
+
+### 8:
+# curl localhost:8080/friend-request/decline -d'{"fromUserId": "00000000-0000-0000-0000-000000000000", "toUserId": "11111111-1111-1111-1111-111111111111", "reason": "I don't like you!"}' -H"content-type: application/json"
+POST localhost:8080/friend-request/decline
+Content-Type: application/json
+Accept: application/json
+
+{
+  "id": "11111111-1111-1111-1111-111111111111",
+  "fromUserId": "00000000-0000-0000-0000-000000000000",
+  "reason": "I don't like you!"
+}
+
+### 9:
+# curl localhost:8080/friend-request/send -d'{"fromUserId": "00000000-0000-0000-0000-000000000000", "toUserId": "11111111-1111-1111-1111-111111111111", "greeting": "Hey!"}' -H"content-type: application/json"
+POST localhost:8080/friend-request/send
+Content-Type: application/json
+Accept: application/json
+
+{
+  "fromUserId": "00000000-0000-0000-0000-000000000000",
+  "toUserId": "11111111-1111-1111-1111-111111111111",
+  "greeting": "Please, please..."
+}
+
+### 10:
+# curl localhost:8080/friend-request/accept -d'{"fromUserId": "00000000-0000-0000-0000-000000000000", "toUserId": "11111111-1111-1111-1111-111111111111"}' -H"content-type: application/json"
+POST localhost:8080/friend-request/accept
+Content-Type: application/json
+Accept: application/json
+
+{
+  "id": "11111111-1111-1111-1111-111111111111",
+  "fromUserId": "00000000-0000-0000-0000-000000000000"
+}
+
+### ...
+POST localhost:8080/http-server/shutdown
 Content-Type: application/json
 Accept: application/json
 

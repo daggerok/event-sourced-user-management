@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -20,6 +21,13 @@ import static java.util.Collections.emptyList;
 public class UserInMemoryEventSourcedRepository implements EventSourcedRepository<User, UUID> {
 
     private final Map<UUID, Collection<DomainEvent>> eventStore = new ConcurrentHashMap<>();
+
+    @Override
+    public Collection<UUID> aggregates() {
+        Set<UUID> identifiers = eventStore.keySet();
+        log.debug("aggregate identifiers: {}", identifiers.size());
+        return identifiers;
+    }
 
     @Override
     public void save(User aggregate) {
@@ -40,21 +48,19 @@ public class UserInMemoryEventSourcedRepository implements EventSourcedRepositor
     }
 
     @Override
-    public User recreate(UUID aggregateId) {
+    public User load(UUID aggregateId) {
         log.debug("re-create latest User({}) state from beginning of the history...", aggregateId);
 
         User snapshot = new User();
         if (Objects.isNull(aggregateId)) return snapshot;
 
-        User recreated = eventStore.containsKey(aggregateId)
+        return clearFinallyWith(() -> eventStore.containsKey(aggregateId)
                 ? replay(snapshot, eventStore.get(aggregateId))
-                : snapshot;
-
-        return clearEventsAndGet(recreated);
+                : snapshot);
     }
 
     @Override
-    public User recreatePast(UUID aggregateId, LocalDateTime atTime) {
+    public User loadRevision(UUID aggregateId, LocalDateTime atTime) {
         log.debug("re-create past User({}) state at {}...", aggregateId, atTime);
 
         User snapshot = new User();
@@ -76,18 +82,12 @@ public class UserInMemoryEventSourcedRepository implements EventSourcedRepositor
 
         log.debug("replay User state from snapshot by applying {} events.", events.size());
         // Aggregate must have (apply impl) specific API!
-        return clearEventsAndGet(io.vavr.collection.List.ofAll(events)
-                                                        .foldLeft(user, User::apply));
+        return clearFinallyWith(() -> io.vavr.collection.List.ofAll(events)
+                                                             .foldLeft(user, User::apply));
     }
 
-    @Override
-    public Collection<UUID> aggregates() {
-        Set<UUID> identifiers = eventStore.keySet();
-        log.debug("aggregate identifiers: {}", identifiers.size());
-        return identifiers;
-    }
-
-    private User clearEventsAndGet(User replayed) { // avoid state inconsistency between new and recreated aggregates
+    private User clearFinallyWith(Supplier<User> toReplay) { // avoid state inconsistency between new and recreated aggregates
+        User replayed = toReplay.get();
         replayed.getEvents().clear();
         return replayed;
     }

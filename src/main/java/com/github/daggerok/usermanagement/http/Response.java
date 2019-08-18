@@ -49,7 +49,8 @@ public class Response<T> {
     }
 
     private void sendResponse(HttpExchange exchange) throws IOException {
-        T payload = Objects.requireNonNull(body, "message is required!");
+        // T payload = Objects.requireNonNull(body, "message is required!");
+        T payload = Optional.ofNullable(body).orElse((T) null);
         String jsonResponse = mapToJson(singletonMap("result", payload));
         exchange.sendResponseHeaders(status.code, jsonResponse.length());
         @Cleanup val out = exchange.getResponseBody();

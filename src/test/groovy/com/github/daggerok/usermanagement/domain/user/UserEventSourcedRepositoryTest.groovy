@@ -13,9 +13,9 @@ class UserEventSourcedRepositoryTest extends Specification {
         and:
             def user = new User()
         and:
-            user.create(id, 'bob')
+            user.createAccount(id, 'bob')
         and:
-            user.suspend(id, 'waiting for approvals')
+            user.closeAccount(id, 'waiting for approvals')
         and:
             user.events.size() == 2
         and:
@@ -25,20 +25,20 @@ class UserEventSourcedRepositoryTest extends Specification {
         and:
             user.events.size() == 0
         then:
-            def saved = repository.recreate(id)
+            def loaded = repository.load(id)
         and:
-            saved == user
+            loaded == user
     }
 
     def 'should create two users and verify all aggregates are present in repository after their save'() {
         given:
             def user1 = new User()
         and:
-            user1.create(UUID.randomUUID(), UUID.randomUUID() as String)
+            user1.createAccount(UUID.randomUUID(), UUID.randomUUID() as String)
         and:
             def user2 = new User()
         and:
-            user2.create(UUID.randomUUID(), UUID.randomUUID() as String)
+            user2.createAccount(UUID.randomUUID(), UUID.randomUUID() as String)
         expect:
             repository.aggregates().size() == 0
         when:
